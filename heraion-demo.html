@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heraion Demo - AI Reasoning for Analog Circuit Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+            padding: 40px;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            height: 100%;
+            max-height: 800px;
+        }
+
+        .panel {
+            background: #1e2633;
+            border-radius: 12px;
+            border: 1px solid #2d3748;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+
+        .heraion-panel {
+            border: 2px solid #3b82f6;
+            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3);
+            opacity: 0.4;
+            transform: scale(0.98);
+            transition: all 0.5s ease;
+        }
+
+        .heraion-panel.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .toolbar {
+            background: #15202b;
+            padding: 12px 20px;
+            border-bottom: 1px solid #2d3748;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot.red { background: #ff5f56; }
+        .dot.yellow { background: #ffbd2e; }
+        .dot.green { background: #27c93f; }
+
+        .toolbar-title {
+            margin-left: 16px;
+            color: #8b95a5;
+            font-size: 13px;
+            font-family: Menlo, Monaco, monospace;
+        }
+
+        .content {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section-title {
+            color: #e2e8f0;
+            font-size: 14px;
+            font-family: Menlo, Monaco, monospace;
+            margin-bottom: 8px;
+        }
+
+        .waveform-container {
+            flex: 1;
+            background: #0d1117;
+            border-radius: 8px;
+            border: 1px solid #2d3748;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-bar {
+            padding: 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: background 0.5s ease;
+        }
+
+        .status-bar.idle { background: #1e3a5f; }
+        .status-bar.failed { background: #7f1d1d; }
+        .status-bar.success { background: #064e3b; }
+
+        .heraion-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .heraion-logo {
+            width: 32px;
+            height: 32px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 18px;
+            color: #3b82f6;
+        }
+
+        .heraion-title {
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .heraion-subtitle {
+            color: rgba(255,255,255,0.8);
+            font-size: 12px;
+        }
+
+        .analyzing {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px;
+            background: #1e3a5f;
+            border-radius: 8px;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #3b82f6;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .ai-response {
+            background: #0f1922;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #2d3748;
+        }
+
+        .ai-text {
+            color: #e2e8f0;
+            font-size: 14px;
+            font-family: Menlo, Monaco, monospace;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .apply-button {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .apply-button.success {
+            background: #10b981;
+        }
+
+        .performance-summary {
+            margin-top: 20px;
+            padding: 20px;
+            background: #064e3b;
+            border-radius: 8px;
+            border: 1px solid #10b981;
+        }
+
+        .summary-title {
+            color: #6ee7b7;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            color: #d1fae5;
+            font-size: 14px;
+            font-family: Menlo, Monaco, monospace;
+        }
+
+        .metric-label {
+            opacity: 0.7;
+            font-size: 12px;
+        }
+
+        .metric-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .tagline {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #64748b;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 1s ease;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .tagline.show {
+            opacity: 1;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .waveform {
+            transition: stroke 0.5s ease;
+        }
+
+        .pm-indicator {
+            transition: stroke 0.5s ease;
+        }
+
+        .pm-text {
+            transition: fill 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Panel - Cadence-like EDA Interface -->
+        <div class="panel">
+            <div class="toolbar">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+                <span class="toolbar-title">opamp_diffpair.sp — Cadence Virtuoso</span>
+            </div>
+
+            <div class="content">
+                <div class="section-title">AC Response — Phase Margin Analysis</div>
+
+                <div class="waveform-container">
+                    <svg width="100%" height="100%" style="position: absolute;">
+                        <defs>
+                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e2d3d" stroke-width="0.5"/>
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+                    </svg>
+
+                    <svg width="90%" height="80%" style="position: relative;">
+                        <path
+                            id="waveform"
+                            class="waveform"
+                            d="M 0 200 Q 100 200 150 180 T 300 160 T 450 140 T 600 150"
+                            stroke="#3b82f6"
+                            stroke-width="2.5"
+                            fill="none"
+                            opacity="0.3"
+                        />
+                        
+                        <line
+                            id="pm-indicator"
+                            class="pm-indicator"
+                            x1="450"
+                            y1="140"
+                            x2="450"
+                            y2="100"
+                            stroke="#ef4444"
+                            stroke-width="2"
+                            stroke-dasharray="4"
+                            opacity="0.3"
+                        />
+                        
+                        <text
+                            id="pm-text"
+                            class="pm-text"
+                            x="460"
+                            y="115"
+                            fill="#ef4444"
+                            font-size="12"
+                            font-family="Menlo, Monaco, monospace"
+                            opacity="0.3"
+                        >PM: 38°</text>
+                    </svg>
+                </div>
+
+                <div id="status-bar" class="status-bar idle">
+                    <div style="width: 20px; height: 20px; border: 2px solid #64748b; border-radius: 50%; opacity: 0.5;"></div>
+                    <span style="color: #64748b; font-size: 14px;">Ready to simulate</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Heraion AI Assistant -->
+        <div id="heraion-panel" class="panel heraion-panel">
+            <div class="heraion-header">
+                <div class="heraion-logo">H</div>
+                <div>
+                    <div class="heraion-title">HERAION</div>
+                    <div class="heraion-subtitle">AI Circuit Reasoning</div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div id="analyzing" class="analyzing hidden">
+                    <div class="spinner"></div>
+                    <span style="color: #93c5fd; font-size: 15px;">Analyzing circuit topology and constraints...</span>
+                </div>
+
+                <div id="ai-response" class="ai-response hidden">
+                    <div id="ai-text" class="ai-text"></div>
+                </div>
+
+                <button id="apply-button" class="apply-button hidden">
+                    <div class="spinner" style="width: 16px; height: 16px; border-width: 2px; border-color: white; border-top-color: transparent;"></div>
+                    Applying changes...
+                </button>
+
+                <div id="performance-summary" class="performance-summary hidden">
+                    <div class="summary-title">PERFORMANCE SUMMARY</div>
+                    <div class="summary-grid">
+                        <div>
+                            <div class="metric-label">Phase Margin</div>
+                            <div class="metric-value">38° → 65°</div>
+                        </div>
+                        <div>
+                            <div class="metric-label">Time Saved</div>
+                            <div class="metric-value">3h 35m</div>
+                        </div>
+                        <div>
+                            <div class="metric-label">GBW</div>
+                            <div class="metric-value">-8%</div>
+                        </div>
+                        <div>
+                            <div class="metric-label">Power</div>
+                            <div class="metric-value">+12%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tagline" class="tagline">From hours to minutes. From guessing to reasoning.</div>
+
+    <script>
+        const fullAiText = `Phase margin: 38° (spec: 60°)
+
+Root cause: Miller capacitance insufficient
+
+Recommendation:
+• Increase C_comp: 1.5pF → 3.2pF
+• Expected PM: 38° → 65°
+• Tradeoff: GBW -8%, Power +12%
+
+Apply changes?`;
+
+        let currentPhase = 'intro';
+
+        function setPhase(phase) {
+            currentPhase = phase;
+            const statusBar = document.getElementById('status-bar');
+            const heraionPanel = document.getElementById('heraion-panel');
+            const analyzing = document.getElementById('analyzing');
+            const aiResponse = document.getElementById('ai-response');
+            const applyButton = document.getElementById('apply-button');
+            const performanceSummary = document.getElementById('performance-summary');
+            const tagline = document.getElementById('tagline');
+            const waveform = document.getElementById('waveform');
+            const pmIndicator = document.getElementById('pm-indicator');
+            const pmText = document.getElementById('pm-text');
+
+            // Reset all
+            analyzing.classList.add('hidden');
+            aiResponse.classList.add('hidden');
+            applyButton.classList.add('hidden');
+            performanceSummary.classList.add('hidden');
+
+            switch(phase) {
+                case 'intro':
+                    statusBar.className = 'status-bar idle';
+                    statusBar.innerHTML = '<div style="width: 20px; height: 20px; border: 2px solid #64748b; border-radius: 50%; opacity: 0.5;"></div><span style="color: #64748b; font-size: 14px;">Ready to simulate</span>';
+                    heraionPanel.classList.remove('active');
+                    tagline.classList.remove('show');
+                    waveform.style.opacity = '0.3';
+                    pmIndicator.style.opacity = '0.3';
+                    pmText.style.opacity = '0.3';
+                    break;
+
+                case 'failed':
+                    statusBar.className = 'status-bar failed';
+                    statusBar.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#ef4444" stroke-width="2"/><path d="M7 7l6 6M13 7l-6 6" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/></svg><span style="color: #ef4444; font-size: 14px; font-weight: 600;">Phase margin below spec (38° / 60° required)</span>';
+                    waveform.style.opacity = '1';
+                    waveform.style.stroke = '#3b82f6';
+                    pmIndicator.style.opacity = '1';
+                    pmIndicator.style.stroke = '#ef4444';
+                    pmText.style.opacity = '1';
+                    pmText.style.fill = '#ef4444';
+                    pmText.textContent = 'PM: 38°';
+                    break;
+
+                case 'analyzing':
+                    heraionPanel.classList.add('active');
+                    analyzing.classList.remove('hidden');
+                    break;
+
+                case 'reasoning':
+                    analyzing.classList.add('hidden');
+                    aiResponse.classList.remove('hidden');
+                    typeText();
+                    break;
+
+                case 'applying':
+                    applyButton.classList.remove('hidden');
+                    applyButton.className = 'apply-button';
+                    applyButton.innerHTML = '<div class="spinner" style="width: 16px; height: 16px; border-width: 2px; border-color: white; border-top-color: transparent;"></div>Applying changes...';
+                    break;
+
+                case 'success':
+                    statusBar.className = 'status-bar success';
+                    statusBar.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#10b981" stroke-width="2"/><path d="M6 10l3 3 5-6" stroke="#10b981" stroke-width="2" stroke-linecap="round"/></svg><span style="color: #10b981; font-size: 14px; font-weight: 600;">Specifications met</span>';
+                    applyButton.className = 'apply-button success';
+                    applyButton.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 10l3 3 5-6" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>Applied Successfully';
+                    performanceSummary.classList.remove('hidden');
+                    tagline.classList.add('show');
+                    waveform.style.stroke = '#10b981';
+                    pmIndicator.style.stroke = '#10b981';
+                    pmText.style.fill = '#10b981';
+                    pmText.textContent = 'PM: 65°';
+                    break;
+            }
+        }
+
+        function typeText() {
+            const aiTextElement = document.getElementById('ai-text');
+            let index = 0;
+            
+            const typeInterval = setInterval(() => {
+                if (index <= fullAiText.length) {
+                    aiTextElement.textContent = fullAiText.slice(0, index);
+                    index++;
+                } else {
+                    clearInterval(typeInterval);
+                }
+            }, 30);
+        }
+
+        function runSequence() {
+            const sequence = [
+                { time: 0, action: () => setPhase('intro') },
+                { time: 1000, action: () => setPhase('failed') },
+                { time: 3000, action: () => setPhase('analyzing') },
+                { time: 4500, action: () => setPhase('reasoning') },
+                { time: 8000, action: () => setPhase('applying') },
+                { time: 9500, action: () => setPhase('success') },
+                { time: 13000, action: () => runSequence() } // Loop
+            ];
+
+            sequence.forEach(({ time, action }) => {
+                setTimeout(action, time);
+            });
+        }
+
+        // Start the demo
+        runSequence();
+    </script>
+</body>
+</html>
