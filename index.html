@@ -25,15 +25,12 @@
 
         .container {
             width: 100%;
-            max-width: 1400px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
+            max-width: 1600px;
             height: 100%;
-            max-height: 800px;
+            max-height: 900px;
         }
 
-        .panel {
+        .virtuoso-window {
             background: #1e2633;
             border-radius: 12px;
             border: 1px solid #2d3748;
@@ -41,19 +38,38 @@
             flex-direction: column;
             overflow: hidden;
             box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            height: 100%;
         }
 
-        .heraion-panel {
-            border: 2px solid #3b82f6;
-            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3);
-            opacity: 0.4;
-            transform: scale(0.98);
-            transition: all 0.5s ease;
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            overflow: hidden;
         }
 
-        .heraion-panel.active {
-            opacity: 1;
-            transform: scale(1);
+        .schematic-area {
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #2d3748;
+        }
+
+        .chat-panel {
+            background: #151d28;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #3b82f6;
+            position: relative;
+        }
+
+        .chat-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(180deg, #3b82f6 0%, transparent 100%);
         }
 
         .toolbar {
@@ -88,6 +104,57 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+        }
+
+        .schematic-canvas {
+            flex: 1;
+            background: #0d1117;
+            border-radius: 8px;
+            border: 1px solid #2d3748;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .circuit-element {
+            transition: all 0.3s ease;
+        }
+
+        .circuit-highlight {
+            filter: drop-shadow(0 0 8px #3b82f6);
+        }
+
+        .properties-panel {
+            background: #15202b;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #2d3748;
+            font-family: Menlo, Monaco, monospace;
+            font-size: 13px;
+        }
+
+        .property-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            color: #94a3b8;
+        }
+
+        .property-value {
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        .property-value.updating {
+            color: #3b82f6;
+            animation: pulse 1s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .section-title {
@@ -161,6 +228,138 @@
             padding: 20px;
             background: #1e3a5f;
             border-radius: 8px;
+        }
+
+        .chat-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .chat-icon {
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 14px;
+            color: #3b82f6;
+        }
+
+        .chat-title {
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            background: #2d3748;
+            color: #e2e8f0;
+            margin-left: 40px;
+        }
+
+        .message.assistant {
+            background: #1e3a5f;
+            color: #93c5fd;
+            margin-right: 40px;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .message.assistant .thinking {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #60a5fa;
+        }
+
+        .code-block {
+            background: #0d1117;
+            border: 1px solid #2d3748;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 8px;
+            font-family: Menlo, Monaco, monospace;
+            font-size: 12px;
+            color: #e2e8f0;
+        }
+
+        .suggestion-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .suggestion-button:hover {
+            background: #2563eb;
+        }
+
+        .suggestion-button.success {
+            background: #10b981;
+        }
+
+        .chat-input {
+            padding: 16px 20px;
+            border-top: 1px solid #2d3748;
+            background: #1e2633;
+        }
+
+        .input-field {
+            width: 100%;
+            background: #0d1117;
+            border: 1px solid #2d3748;
+            border-radius: 6px;
+            padding: 10px 12px;
+            color: #e2e8f0;
+            font-size: 13px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        }
+
+        .input-field::placeholder {
+            color: #64748b;
         }
 
         .spinner {
@@ -283,116 +482,169 @@
 </head>
 <body>
     <div class="container">
-        <!-- Left Panel - Cadence-like EDA Interface -->
-        <div class="panel">
+        <div class="virtuoso-window">
+            <!-- Toolbar -->
             <div class="toolbar">
                 <div class="dot red"></div>
                 <div class="dot yellow"></div>
                 <div class="dot green"></div>
-                <span class="toolbar-title">opamp_diffpair.sp — Cadence Virtuoso</span>
+                <span class="toolbar-title">opamp_diffpair.sch — Cadence Virtuoso Schematic Editor</span>
             </div>
 
-            <div class="content">
-                <div class="section-title">AC Response — Phase Margin Analysis</div>
+            <div class="main-content">
+                <!-- Left: Schematic Area -->
+                <div class="schematic-area">
+                    <div class="content">
+                        <div class="section-title">Schematic — Two-Stage Op-Amp</div>
 
-                <div class="waveform-container">
-                    <svg width="100%" height="100%" style="position: absolute;">
-                        <defs>
-                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e2d3d" stroke-width="0.5"/>
-                            </pattern>
-                        </defs>
-                        <rect width="100%" height="100%" fill="url(#grid)" />
-                    </svg>
+                        <div class="schematic-canvas">
+                            <!-- Grid background -->
+                            <svg width="100%" height="100%" style="position: absolute;">
+                                <defs>
+                                    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+                                        <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#1e2d3d" stroke-width="0.5"/>
+                                    </pattern>
+                                </defs>
+                                <rect width="100%" height="100%" fill="url(#grid)" />
+                            </svg>
 
-                    <svg width="90%" height="80%" style="position: relative;">
-                        <path
-                            id="waveform"
-                            class="waveform"
-                            d="M 0 200 Q 100 200 150 180 T 300 160 T 450 140 T 600 150"
-                            stroke="#3b82f6"
-                            stroke-width="2.5"
-                            fill="none"
-                            opacity="0.3"
-                        />
-                        
-                        <line
-                            id="pm-indicator"
-                            class="pm-indicator"
-                            x1="450"
-                            y1="140"
-                            x2="450"
-                            y2="100"
-                            stroke="#ef4444"
-                            stroke-width="2"
-                            stroke-dasharray="4"
-                            opacity="0.3"
-                        />
-                        
-                        <text
-                            id="pm-text"
-                            class="pm-text"
-                            x="460"
-                            y="115"
-                            fill="#ef4444"
-                            font-size="12"
-                            font-family="Menlo, Monaco, monospace"
-                            opacity="0.3"
-                        >PM: 38°</text>
-                    </svg>
-                </div>
+                            <!-- Circuit Schematic -->
+                            <svg width="90%" height="90%" viewBox="0 0 800 600" style="position: relative;">
+                                <!-- Power rails -->
+                                <line x1="50" y1="50" x2="750" y2="50" stroke="#94a3b8" stroke-width="2"/>
+                                <text x="400" y="40" fill="#94a3b8" font-size="14" text-anchor="middle" font-family="Menlo, Monaco, monospace">VDD</text>
+                                
+                                <line x1="50" y1="550" x2="750" y2="550" stroke="#94a3b8" stroke-width="2"/>
+                                <text x="400" y="575" fill="#94a3b8" font-size="14" text-anchor="middle" font-family="Menlo, Monaco, monospace">VSS</text>
 
-                <div id="status-bar" class="status-bar idle">
-                    <div style="width: 20px; height: 20px; border: 2px solid #64748b; border-radius: 50%; opacity: 0.5;"></div>
-                    <span style="color: #64748b; font-size: 14px;">Ready to simulate</span>
-                </div>
-            </div>
-        </div>
+                                <!-- Input Stage - Differential Pair -->
+                                <g id="input-stage" class="circuit-element">
+                                    <!-- M1 - Left input transistor -->
+                                    <rect x="150" y="200" width="60" height="80" fill="none" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="150" y1="240" x2="130" y2="240" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="210" y1="220" x2="240" y2="220" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="210" y1="260" x2="240" y2="260" stroke="#60a5fa" stroke-width="2"/>
+                                    <text x="180" y="245" fill="#e2e8f0" font-size="12" text-anchor="middle" font-family="Menlo, Monaco, monospace">M1</text>
+                                    
+                                    <!-- M2 - Right input transistor -->
+                                    <rect x="290" y="200" width="60" height="80" fill="none" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="290" y1="240" x2="270" y2="240" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="350" y1="220" x2="380" y2="220" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="350" y1="260" x2="380" y2="260" stroke="#60a5fa" stroke-width="2"/>
+                                    <text x="320" y="245" fill="#e2e8f0" font-size="12" text-anchor="middle" font-family="Menlo, Monaco, monospace">M2</text>
 
-        <!-- Right Panel - Heraion AI Assistant -->
-        <div id="heraion-panel" class="panel heraion-panel">
-            <div class="heraion-header">
-                <div class="heraion-logo">H</div>
-                <div>
-                    <div class="heraion-title">HERAION</div>
-                    <div class="heraion-subtitle">AI Circuit Reasoning</div>
-                </div>
-            </div>
+                                    <!-- Current source -->
+                                    <circle cx="250" cy="350" r="20" fill="none" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="250" y1="280" x2="250" y2="330" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="240" y1="260" x2="250" y2="280" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="260" y1="260" x2="250" y2="280" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="250" y1="370" x2="250" y2="420" stroke="#60a5fa" stroke-width="2"/>
+                                    <text x="280" y="355" fill="#e2e8f0" font-size="11" font-family="Menlo, Monaco, monospace">Ibias</text>
+                                </g>
 
-            <div class="content">
-                <div id="analyzing" class="analyzing hidden">
-                    <div class="spinner"></div>
-                    <span style="color: #93c5fd; font-size: 15px;">Analyzing circuit topology and constraints...</span>
-                </div>
+                                <!-- Active Loads -->
+                                <g id="load-stage" class="circuit-element">
+                                    <!-- M3 - Load transistor left -->
+                                    <rect x="210" y="100" width="60" height="60" fill="none" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="240" y1="100" x2="240" y2="80" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="240" y1="160" x2="240" y2="220" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="270" y1="130" x2="290" y2="130" stroke="#60a5fa" stroke-width="2"/>
+                                    <text x="240" y="135" fill="#e2e8f0" font-size="12" text-anchor="middle" font-family="Menlo, Monaco, monospace">M3</text>
+                                    
+                                    <!-- M4 - Load transistor right -->
+                                    <rect x="350" y="100" width="60" height="60" fill="none" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="380" y1="100" x2="380" y2="80" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="380" y1="160" x2="380" y2="220" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="350" y1="130" x2="290" y2="130" stroke="#60a5fa" stroke-width="2"/>
+                                    <text x="380" y="135" fill="#e2e8f0" font-size="12" text-anchor="middle" font-family="Menlo, Monaco, monospace">M4</text>
 
-                <div id="ai-response" class="ai-response hidden">
-                    <div id="ai-text" class="ai-text"></div>
-                </div>
+                                    <!-- Mirror connection -->
+                                    <circle cx="290" cy="130" r="3" fill="#60a5fa"/>
+                                </g>
 
-                <button id="apply-button" class="apply-button hidden">
-                    <div class="spinner" style="width: 16px; height: 16px; border-width: 2px; border-color: white; border-top-color: transparent;"></div>
-                    Applying changes...
-                </button>
+                                <!-- Second Stage - Common Source Amp -->
+                                <g id="output-stage" class="circuit-element">
+                                    <!-- M5 - Output transistor -->
+                                    <rect x="520" y="180" width="80" height="100" fill="none" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="480" y1="230" x2="520" y2="230" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="600" y1="200" x2="640" y2="200" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="600" y1="260" x2="640" y2="260" stroke="#60a5fa" stroke-width="2"/>
+                                    <text x="560" y="235" fill="#e2e8f0" font-size="12" text-anchor="middle" font-family="Menlo, Monaco, monospace">M5</text>
 
-                <div id="performance-summary" class="performance-summary hidden">
-                    <div class="summary-title">PERFORMANCE SUMMARY</div>
-                    <div class="summary-grid">
-                        <div>
-                            <div class="metric-label">Phase Margin</div>
-                            <div class="metric-value">38° → 65°</div>
+                                    <!-- Load resistor -->
+                                    <rect x="630" y="100" width="20" height="80" fill="none" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="640" y1="80" x2="640" y2="100" stroke="#60a5fa" stroke-width="2"/>
+                                    <line x1="640" y1="180" x2="640" y2="200" stroke="#60a5fa" stroke-width="2"/>
+                                    <text x="670" y="145" fill="#e2e8f0" font-size="11" font-family="Menlo, Monaco, monospace">RL</text>
+                                </g>
+
+                                <!-- Compensation Capacitor (highlighted) -->
+                                <g id="miller-cap" class="circuit-element">
+                                    <line x1="380" y1="220" x2="480" y2="230" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="5,5"/>
+                                    <rect x="420" y="210" width="30" height="40" fill="none" stroke="#3b82f6" stroke-width="3"/>
+                                    <line x1="420" y1="230" x2="410" y2="230" stroke="#3b82f6" stroke-width="2.5"/>
+                                    <line x1="450" y1="230" x2="460" y2="230" stroke="#3b82f6" stroke-width="2.5"/>
+                                    <text x="435" y="270" fill="#3b82f6" font-size="13" text-anchor="middle" font-family="Menlo, Monaco, monospace" font-weight="bold" id="cap-label">C_comp</text>
+                                    <text x="435" y="288" fill="#3b82f6" font-size="12" text-anchor="middle" font-family="Menlo, Monaco, monospace" id="cap-value">1.5pF</text>
+                                </g>
+
+                                <!-- Connection lines -->
+                                <line x1="380" y1="220" x2="380" y2="190" stroke="#94a3b8" stroke-width="1.5"/>
+                                <line x1="380" y1="190" x2="480" y2="190" stroke="#94a3b8" stroke-width="1.5"/>
+                                <line x1="480" y1="190" x2="480" y2="230" stroke="#94a3b8" stroke-width="1.5"/>
+                                <line x1="640" y1="260" x2="640" y2="350" stroke="#94a3b8" stroke-width="2"/>
+                                <line x1="250" y1="420" x2="250" y2="550" stroke="#94a3b8" stroke-width="2"/>
+
+                                <!-- Input terminals -->
+                                <circle cx="130" cy="240" r="4" fill="#10b981"/>
+                                <text x="90" y="245" fill="#10b981" font-size="12" font-family="Menlo, Monaco, monospace">Vin+</text>
+                                <circle cx="270" cy="240" r="4" fill="#10b981"/>
+                                <text x="270" y="230" fill="#10b981" font-size="12" font-family="Menlo, Monaco, monospace">Vin-</text>
+
+                                <!-- Output terminal -->
+                                <circle cx="640" cy="350" r="5" fill="#ef4444"/>
+                                <text x="655" y="355" fill="#ef4444" font-size="13" font-family="Menlo, Monaco, monospace" font-weight="bold">Vout</text>
+                            </svg>
                         </div>
-                        <div>
-                            <div class="metric-label">Time Saved</div>
-                            <div class="metric-value">3h 35m</div>
+
+                        <!-- Properties Panel -->
+                        <div class="properties-panel">
+                            <div style="color: #e2e8f0; font-weight: 600; margin-bottom: 8px; font-size: 12px;">Selected: C_comp (Miller Compensation)</div>
+                            <div class="property-row">
+                                <span>Capacitance:</span>
+                                <span class="property-value" id="prop-cap">1.5 pF</span>
+                            </div>
+                            <div class="property-row">
+                                <span>Voltage Rating:</span>
+                                <span class="property-value">3.3 V</span>
+                            </div>
+                            <div class="property-row">
+                                <span>Type:</span>
+                                <span class="property-value">MIM</span>
+                            </div>
                         </div>
-                        <div>
-                            <div class="metric-label">GBW</div>
-                            <div class="metric-value">-8%</div>
+
+                        <!-- Status bar -->
+                        <div id="status-bar" class="status-bar idle">
+                            <div style="width: 20px; height: 20px; border: 2px solid #64748b; border-radius: 50%; opacity: 0.5;"></div>
+                            <span style="color: #64748b; font-size: 14px;">Ready to simulate</span>
                         </div>
-                        <div>
-                            <div class="metric-label">Power</div>
-                            <div class="metric-value">+12%</div>
-                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Heraion Chat Panel -->
+                <div class="chat-panel">
+                    <div class="chat-header">
+                        <div class="chat-icon">H</div>
+                        <span class="chat-title">Heraion AI Assistant</span>
+                    </div>
+
+                    <div id="chat-messages" class="chat-messages">
+                        <!-- Messages will be added dynamically -->
+                    </div>
+
+                    <div class="chat-input">
+                        <input type="text" class="input-field" placeholder="Ask Heraion about your circuit..." disabled>
                     </div>
                 </div>
             </div>
@@ -402,121 +654,136 @@
     <div id="tagline" class="tagline">From hours to minutes. From guessing to reasoning.</div>
 
     <script>
-        const fullAiText = `Phase margin: 38° (spec: 60°)
+        const chatMessages = document.getElementById('chat-messages');
+        const statusBar = document.getElementById('status-bar');
+        const millerCap = document.getElementById('miller-cap');
+        const capLabel = document.getElementById('cap-label');
+        const capValue = document.getElementById('cap-value');
+        const propCap = document.getElementById('prop-cap');
+        const tagline = document.getElementById('tagline');
 
-Root cause: Miller capacitance insufficient
-
-Recommendation:
-• Increase C_comp: 1.5pF → 3.2pF
-• Expected PM: 38° → 65°
-• Tradeoff: GBW -8%, Power +12%
-
-Apply changes?`;
-
-        let currentPhase = 'intro';
-
-        function setPhase(phase) {
-            currentPhase = phase;
-            const statusBar = document.getElementById('status-bar');
-            const heraionPanel = document.getElementById('heraion-panel');
-            const analyzing = document.getElementById('analyzing');
-            const aiResponse = document.getElementById('ai-response');
-            const applyButton = document.getElementById('apply-button');
-            const performanceSummary = document.getElementById('performance-summary');
-            const tagline = document.getElementById('tagline');
-            const waveform = document.getElementById('waveform');
-            const pmIndicator = document.getElementById('pm-indicator');
-            const pmText = document.getElementById('pm-text');
-
-            // Reset all
-            analyzing.classList.add('hidden');
-            aiResponse.classList.add('hidden');
-            applyButton.classList.add('hidden');
-            performanceSummary.classList.add('hidden');
-
-            switch(phase) {
-                case 'intro':
-                    statusBar.className = 'status-bar idle';
-                    statusBar.innerHTML = '<div style="width: 20px; height: 20px; border: 2px solid #64748b; border-radius: 50%; opacity: 0.5;"></div><span style="color: #64748b; font-size: 14px;">Ready to simulate</span>';
-                    heraionPanel.classList.remove('active');
-                    tagline.classList.remove('show');
-                    waveform.style.opacity = '0.3';
-                    pmIndicator.style.opacity = '0.3';
-                    pmText.style.opacity = '0.3';
-                    break;
-
-                case 'failed':
-                    statusBar.className = 'status-bar failed';
-                    statusBar.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#ef4444" stroke-width="2"/><path d="M7 7l6 6M13 7l-6 6" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/></svg><span style="color: #ef4444; font-size: 14px; font-weight: 600;">Phase margin below spec (38° / 60° required)</span>';
-                    waveform.style.opacity = '1';
-                    waveform.style.stroke = '#3b82f6';
-                    pmIndicator.style.opacity = '1';
-                    pmIndicator.style.stroke = '#ef4444';
-                    pmText.style.opacity = '1';
-                    pmText.style.fill = '#ef4444';
-                    pmText.textContent = 'PM: 38°';
-                    break;
-
-                case 'analyzing':
-                    heraionPanel.classList.add('active');
-                    analyzing.classList.remove('hidden');
-                    break;
-
-                case 'reasoning':
-                    analyzing.classList.add('hidden');
-                    aiResponse.classList.remove('hidden');
-                    typeText();
-                    break;
-
-                case 'applying':
-                    applyButton.classList.remove('hidden');
-                    applyButton.className = 'apply-button';
-                    applyButton.innerHTML = '<div class="spinner" style="width: 16px; height: 16px; border-width: 2px; border-color: white; border-top-color: transparent;"></div>Applying changes...';
-                    break;
-
-                case 'success':
-                    statusBar.className = 'status-bar success';
-                    statusBar.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#10b981" stroke-width="2"/><path d="M6 10l3 3 5-6" stroke="#10b981" stroke-width="2" stroke-linecap="round"/></svg><span style="color: #10b981; font-size: 14px; font-weight: 600;">Specifications met</span>';
-                    applyButton.className = 'apply-button success';
-                    applyButton.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 10l3 3 5-6" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>Applied Successfully';
-                    performanceSummary.classList.remove('hidden');
-                    tagline.classList.add('show');
-                    waveform.style.stroke = '#10b981';
-                    pmIndicator.style.stroke = '#10b981';
-                    pmText.style.fill = '#10b981';
-                    pmText.textContent = 'PM: 65°';
-                    break;
-            }
+        function addMessage(type, content, delay = 0) {
+            setTimeout(() => {
+                const msg = document.createElement('div');
+                msg.className = `message ${type}`;
+                msg.innerHTML = content;
+                chatMessages.appendChild(msg);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, delay);
         }
 
-        function typeText() {
-            const aiTextElement = document.getElementById('ai-text');
-            let index = 0;
+        function highlightCircuit() {
+            millerCap.classList.add('circuit-highlight');
+        }
+
+        function updateCapacitor() {
+            capValue.textContent = '3.2pF';
+            propCap.textContent = '3.2 pF';
+            propCap.classList.add('updating');
             
-            const typeInterval = setInterval(() => {
-                if (index <= fullAiText.length) {
-                    aiTextElement.textContent = fullAiText.slice(0, index);
-                    index++;
-                } else {
-                    clearInterval(typeInterval);
-                }
-            }, 30);
+            setTimeout(() => {
+                propCap.classList.remove('updating');
+            }, 2000);
+        }
+
+        function setStatus(type, content) {
+            statusBar.className = `status-bar ${type}`;
+            statusBar.innerHTML = content;
         }
 
         function runSequence() {
-            const sequence = [
-                { time: 0, action: () => setPhase('intro') },
-                { time: 1000, action: () => setPhase('failed') },
-                { time: 3000, action: () => setPhase('analyzing') },
-                { time: 4500, action: () => setPhase('reasoning') },
-                { time: 8000, action: () => setPhase('applying') },
-                { time: 9500, action: () => setPhase('success') },
-                { time: 13000, action: () => runSequence() } // Loop
-            ];
+            // Clear previous messages
+            chatMessages.innerHTML = '';
+            millerCap.classList.remove('circuit-highlight');
+            capValue.textContent = '1.5pF';
+            propCap.textContent = '1.5 pF';
+            tagline.classList.remove('show');
 
-            sequence.forEach(({ time, action }) => {
-                setTimeout(action, time);
-            });
+            // Phase 1: Run simulation (failed)
+            setTimeout(() => {
+                setStatus('failed', '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#ef4444" stroke-width="2"/><path d="M7 7l6 6M13 7l-6 6" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/></svg><span style="color: #ef4444; font-size: 14px; font-weight: 600;">Simulation failed: Phase margin 38° (spec: 60° min)</span>');
+            }, 1000);
+
+            // Phase 2: User asks for help
+            setTimeout(() => {
+                addMessage('user', 'Why is my phase margin failing? Can you help fix this?', 0);
+            }, 2500);
+
+            // Phase 3: Heraion thinking
+            setTimeout(() => {
+                addMessage('assistant', '<div class="thinking"><div class="spinner" style="width: 16px; height: 16px; border-width: 2px;"></div>Analyzing circuit topology and simulation results...</div>', 0);
+            }, 3500);
+
+            // Phase 4: Heraion analysis
+            setTimeout(() => {
+                chatMessages.lastChild.remove(); // Remove thinking message
+                
+                addMessage('assistant', `<strong>Analysis Complete</strong><br><br>
+                    Your phase margin is <strong>38°</strong> (below 60° spec).<br><br>
+                    <strong>Root cause:</strong> Miller compensation capacitor (C_comp) is insufficient for the gain-bandwidth product.<br><br>
+                    Current value: <code>1.5 pF</code><br><br>
+                    <strong>Recommendation:</strong><br>
+                    Increase C_comp to <strong>3.2 pF</strong>
+                    <div class="code-block">
+                    Expected Results:<br>
+                    • Phase Margin: 38° → 65°<br>
+                    • GBW: -8% (acceptable)<br>
+                    • Power: +12% (within budget)
+                    </div>`, 0);
+                
+                highlightCircuit();
+            }, 5000);
+
+            // Phase 5: Apply button
+            setTimeout(() => {
+                const btn = document.createElement('button');
+                btn.className = 'suggestion-button';
+                btn.innerHTML = 'Apply Changes to Circuit';
+                btn.onclick = () => applyChanges(btn);
+                chatMessages.lastChild.appendChild(btn);
+            }, 5500);
+
+            // Auto-apply for demo purposes
+            setTimeout(() => {
+                const btn = chatMessages.querySelector('.suggestion-button');
+                if (btn) btn.click();
+            }, 7500);
+        }
+
+        function applyChanges(button) {
+            button.disabled = true;
+            button.innerHTML = '<div class="spinner" style="width: 16px; height: 16px; border-width: 2px; border-color: white; border-top-color: transparent;"></div>Applying...';
+            
+            setTimeout(() => {
+                updateCapacitor();
+                button.className = 'suggestion-button success';
+                button.innerHTML = '✓ Applied';
+                
+                addMessage('assistant', `<strong>Changes Applied</strong><br><br>
+                    C_comp updated: 1.5 pF → 3.2 pF<br><br>
+                    Running verification simulation...`, 200);
+                
+                setTimeout(() => {
+                    setStatus('success', '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#10b981" stroke-width="2"/><path d="M6 10l3 3 5-6" stroke="#10b981" stroke-width="2" stroke-linecap="round"/></svg><span style="color: #10b981; font-size: 14px; font-weight: 600;">✓ Simulation passed: Phase margin 65°</span>');
+                    
+                    addMessage('assistant', `<strong>Verification Complete ✓</strong>
+                        <div class="code-block" style="background: #064e3b; border-color: #10b981;">
+                        Performance Summary:<br>
+                        • Phase Margin: <strong>65°</strong> ✓<br>
+                        • Gain-Bandwidth: 12.4 MHz<br>
+                        • Power: 2.8 mW<br>
+                        • Settling Time: 95 ns<br><br>
+                        <strong>Time saved: 3h 35min</strong>
+                        </div>`, 400);
+                    
+                    tagline.classList.add('show');
+                    
+                    // Loop the demo
+                    setTimeout(() => {
+                        runSequence();
+                    }, 8000);
+                }, 1500);
+            }, 1500);
         }
 
         // Start the demo
