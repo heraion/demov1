@@ -72,6 +72,38 @@
             background: linear-gradient(180deg, #3b82f6 0%, transparent 100%);
         }
 
+        .tab-nav {
+            display: flex;
+            background: #1e2633;
+            border-bottom: 1px solid #2d3748;
+            padding: 0 12px;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            font-size: 13px;
+            color: #94a3b8;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .tab:hover {
+            color: #e2e8f0;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .tab.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+
+        .verification-view {
+            flex: 1;
+            overflow-y: auto;
+        }
+
         .toolbar {
             background: #15202b;
             padding: 12px 20px;
@@ -444,25 +476,6 @@
             font-weight: 700;
         }
 
-        .tagline {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #64748b;
-            font-size: 18px;
-            font-weight: 600;
-            text-align: center;
-            opacity: 0;
-            transition: opacity 1s ease;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
-
-        .tagline.show {
-            opacity: 1;
-        }
-
         .hidden {
             display: none;
         }
@@ -639,8 +652,53 @@
                         <span class="chat-title">Heraion AI Assistant</span>
                     </div>
 
+                    <!-- Tab Navigation -->
+                    <div class="tab-nav">
+                        <div id="tab-chat" class="tab active">Chat</div>
+                        <div id="tab-verification" class="tab">Verification</div>
+                        <div id="tab-templates" class="tab">Templates</div>
+                        <div id="tab-reports" class="tab">Reports</div>
+                    </div>
+
+                    <!-- Chat Tab Content -->
                     <div id="chat-messages" class="chat-messages">
                         <!-- Messages will be added dynamically -->
+                    </div>
+
+                    <!-- Verification Tab Content -->
+                    <div id="verification-content" class="verification-view" style="display: none;">
+                        <div style="padding: 24px;">
+                            <div style="color: #e2e8f0; font-size: 15px; font-weight: 600; margin-bottom: 8px;">
+                                Corner Verification: AC Stability Analysis
+                            </div>
+                            <div style="color: #94a3b8; font-size: 13px; margin-bottom: 24px;">
+                                Testing across Process-Voltage-Temperature corners
+                            </div>
+
+                            <!-- Progress Bar -->
+                            <div style="background: #0d1117; border-radius: 8px; padding: 20px; border: 1px solid #2d3748; margin-bottom: 20px;">
+                                <div id="verification-progress-text" style="color: #93c5fd; font-size: 13px; margin-bottom: 12px; font-weight: 600;">
+                                    0/27 corners complete
+                                </div>
+                                <div style="background: #1e2633; height: 24px; border-radius: 6px; overflow: hidden; border: 1px solid #2d3748;">
+                                    <div id="verification-progress-bar" style="background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%); height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Corner List -->
+                            <div id="corner-list" style="background: #0d1117; border-radius: 8px; padding: 20px; border: 1px solid #2d3748;">
+                                <div style="color: #e2e8f0; font-size: 13px; font-weight: 600; margin-bottom: 16px;">
+                                    Corner Status:
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 10px; font-family: Menlo, Monaco, monospace; font-size: 13px; color: #94a3b8;">
+                                    <div id="corner-tt"><span style="color: #64748b;">⋯</span> TT 25°C</div>
+                                    <div id="corner-ff"><span style="color: #64748b;">⋯</span> FF 0°C</div>
+                                    <div id="corner-ss"><span style="color: #64748b;">⋯</span> SS 125°C</div>
+                                    <div style="opacity: 0.5;">⋯ +24 more corners</div>
+                                </div>
+                                <div id="verification-status"></div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="chat-input">
@@ -651,8 +709,6 @@
         </div>
     </div>
 
-    <div id="tagline" class="tagline">From hours to minutes. From guessing to reasoning.</div>
-
     <script>
         const chatMessages = document.getElementById('chat-messages');
         const statusBar = document.getElementById('status-bar');
@@ -660,7 +716,31 @@
         const capLabel = document.getElementById('cap-label');
         const capValue = document.getElementById('cap-value');
         const propCap = document.getElementById('prop-cap');
-        const tagline = document.getElementById('tagline');
+
+        // Tab management
+        const tabs = {
+            chat: document.getElementById('tab-chat'),
+            verification: document.getElementById('tab-verification'),
+            templates: document.getElementById('tab-templates'),
+            reports: document.getElementById('tab-reports')
+        };
+
+        const tabContents = {
+            chat: document.getElementById('chat-messages'),
+            verification: document.getElementById('verification-content')
+        };
+
+        function switchTab(tabName) {
+            // Update tab styles
+            Object.keys(tabs).forEach(key => {
+                tabs[key].classList.remove('active');
+            });
+            tabs[tabName].classList.add('active');
+
+            // Show/hide content
+            chatMessages.style.display = tabName === 'chat' ? 'flex' : 'none';
+            tabContents.verification.style.display = tabName === 'verification' ? 'flex' : 'none';
+        }
 
         function addMessage(type, content, delay = 0) {
             setTimeout(() => {
@@ -683,7 +763,7 @@
             
             setTimeout(() => {
                 propCap.classList.remove('updating');
-            }, 2000);
+            }, 1500);
         }
 
         function setStatus(type, content) {
@@ -691,63 +771,117 @@
             statusBar.innerHTML = content;
         }
 
+        function updateVerificationProgress(current, total) {
+            const progressBar = document.getElementById('verification-progress-bar');
+            const progressText = document.getElementById('verification-progress-text');
+            const cornerList = document.getElementById('corner-list');
+            
+            const percentage = (current / total) * 100;
+            progressBar.style.width = percentage + '%';
+            progressText.textContent = `${current}/${total} corners complete`;
+
+            // Update corner statuses
+            if (current >= 3) {
+                document.getElementById('corner-tt').innerHTML = '<span style="color: #10b981;">✓</span> TT 25°C';
+            }
+            if (current >= 9) {
+                document.getElementById('corner-ff').innerHTML = '<span style="color: #10b981;">✓</span> FF 0°C';
+            }
+            if (current >= 18) {
+                document.getElementById('corner-ss').innerHTML = '<span style="color: #10b981;">✓</span> SS 125°C';
+            }
+            if (current === total) {
+                document.getElementById('verification-status').innerHTML = '<div style="color: #10b981; font-weight: 600; margin-top: 16px; font-size: 15px;">✓ 27/27 PASS</div>';
+            }
+        }
+
+        function runVerificationSequence() {
+            // Animate progress from 0 to 27
+            let current = 0;
+            const interval = setInterval(() => {
+                current += 3;
+                if (current > 27) current = 27;
+                updateVerificationProgress(current, 27);
+                
+                if (current === 27) {
+                    clearInterval(interval);
+                }
+            }, 250);
+        }
+
         function runSequence() {
-            // Clear previous messages
+            // Reset everything
             chatMessages.innerHTML = '';
             millerCap.classList.remove('circuit-highlight');
             capValue.textContent = '1.5pF';
             propCap.textContent = '1.5 pF';
-            tagline.classList.remove('show');
+            switchTab('chat');
+            
+            // Reset verification
+            document.getElementById('verification-progress-bar').style.width = '0%';
+            document.getElementById('verification-progress-text').textContent = '0/27 corners complete';
+            document.getElementById('corner-tt').innerHTML = '<span style="color: #64748b;">⋯</span> TT 25°C';
+            document.getElementById('corner-ff').innerHTML = '<span style="color: #64748b;">⋯</span> FF 0°C';
+            document.getElementById('corner-ss').innerHTML = '<span style="color: #64748b;">⋯</span> SS 125°C';
+            document.getElementById('verification-status').innerHTML = '';
 
-            // Phase 1: Run simulation (failed)
+            // === PART 1: REASONING (14 seconds) ===
+            
+            // [0s] Failed simulation
             setTimeout(() => {
                 setStatus('failed', '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#ef4444" stroke-width="2"/><path d="M7 7l6 6M13 7l-6 6" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/></svg><span style="color: #ef4444; font-size: 14px; font-weight: 600;">Simulation failed: Phase margin 38° (spec: 60° min)</span>');
-            }, 1000);
+            }, 0);
 
-            // Phase 2: User asks for help
+            // [1.5s] User asks for help
             setTimeout(() => {
-                addMessage('user', 'Why is my phase margin failing? Can you help fix this?', 0);
+                addMessage('user', 'Why is my phase margin failing?', 0);
+            }, 1500);
+
+            // [2.5s] Heraion analysis (instant, no typing)
+            setTimeout(() => {
+                highlightCircuit();
+                addMessage('assistant', `<strong>Analysis Complete</strong><br><br>
+                    Phase margin: <strong>38°</strong> (below 60° spec)<br><br>
+                    <strong>Root cause:</strong> Miller compensation capacitor insufficient<br><br>
+                    <strong>Recommendation:</strong> Increase C_comp to <strong>3.2 pF</strong>
+                    <div class="code-block">
+                    Expected: PM 38° → 65°<br>
+                    Tradeoff: GBW -8%, Power +12%
+                    </div>`, 0);
             }, 2500);
 
-            // Phase 3: Heraion thinking
-            setTimeout(() => {
-                addMessage('assistant', '<div class="thinking"><div class="spinner" style="width: 16px; height: 16px; border-width: 2px;"></div>Analyzing circuit topology and simulation results...</div>', 0);
-            }, 3500);
-
-            // Phase 4: Heraion analysis
-            setTimeout(() => {
-                chatMessages.lastChild.remove(); // Remove thinking message
-                
-                addMessage('assistant', `<strong>Analysis Complete</strong><br><br>
-                    Your phase margin is <strong>38°</strong> (below 60° spec).<br><br>
-                    <strong>Root cause:</strong> Miller compensation capacitor (C_comp) is insufficient for the gain-bandwidth product.<br><br>
-                    Current value: <code>1.5 pF</code><br><br>
-                    <strong>Recommendation:</strong><br>
-                    Increase C_comp to <strong>3.2 pF</strong>
-                    <div class="code-block">
-                    Expected Results:<br>
-                    • Phase Margin: 38° → 65°<br>
-                    • GBW: -8% (acceptable)<br>
-                    • Power: +12% (within budget)
-                    </div>`, 0);
-                
-                highlightCircuit();
-            }, 5000);
-
-            // Phase 5: Apply button
+            // [3s] Apply button appears
             setTimeout(() => {
                 const btn = document.createElement('button');
                 btn.className = 'suggestion-button';
-                btn.innerHTML = 'Apply Changes to Circuit';
+                btn.innerHTML = 'Apply Changes';
                 btn.onclick = () => applyChanges(btn);
                 chatMessages.lastChild.appendChild(btn);
-            }, 5500);
+            }, 3000);
 
-            // Auto-apply for demo purposes
+            // [5s] Auto-apply
             setTimeout(() => {
                 const btn = chatMessages.querySelector('.suggestion-button');
                 if (btn) btn.click();
-            }, 7500);
+            }, 5000);
+
+            // === PART 2: VERIFICATION (9 seconds) ===
+            
+            // [14.5s] Switch to verification tab
+            setTimeout(() => {
+                switchTab('verification');
+                runVerificationSequence();
+            }, 14500);
+
+            // [23.5s] Return to chat view
+            setTimeout(() => {
+                switchTab('chat');
+            }, 23500);
+
+            // [25.5s] Loop
+            setTimeout(() => {
+                runSequence();
+            }, 25500);
         }
 
         function applyChanges(button) {
@@ -759,31 +893,12 @@
                 button.className = 'suggestion-button success';
                 button.innerHTML = '✓ Applied';
                 
-                addMessage('assistant', `<strong>Changes Applied</strong><br><br>
-                    C_comp updated: 1.5 pF → 3.2 pF<br><br>
-                    Running verification simulation...`, 200);
+                addMessage('assistant', `<strong>Changes Applied</strong><br><br>C_comp: 1.5 pF → 3.2 pF<br><br>Running verification...`, 100);
                 
                 setTimeout(() => {
                     setStatus('success', '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#10b981" stroke-width="2"/><path d="M6 10l3 3 5-6" stroke="#10b981" stroke-width="2" stroke-linecap="round"/></svg><span style="color: #10b981; font-size: 14px; font-weight: 600;">✓ Simulation passed: Phase margin 65°</span>');
-                    
-                    addMessage('assistant', `<strong>Verification Complete ✓</strong>
-                        <div class="code-block" style="background: #064e3b; border-color: #10b981;">
-                        Performance Summary:<br>
-                        • Phase Margin: <strong>65°</strong> ✓<br>
-                        • Gain-Bandwidth: 12.4 MHz<br>
-                        • Power: 2.8 mW<br>
-                        • Settling Time: 95 ns<br><br>
-                        <strong>Time saved: 3h 35min</strong>
-                        </div>`, 400);
-                    
-                    tagline.classList.add('show');
-                    
-                    // Loop the demo
-                    setTimeout(() => {
-                        runSequence();
-                    }, 8000);
-                }, 1500);
-            }, 1500);
+                }, 1200);
+            }, 1000);
         }
 
         // Start the demo
